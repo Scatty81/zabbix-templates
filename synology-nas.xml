@@ -1,7 +1,73 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+Simple XML template for zabbix to monitor Synology devices.
+
+with some triggers, 
+  >40°C for disks.
+  >50°C for the device itself.
+  raid status monitoring
+  and DSM system status (to check for updates)
+
+  and the following items are monitored.
+  Disks ID - Number of disk.
+  Disk model - Model of disk
+  Disk status - is the disk failed broken etc.
+  Disk Type - SATA disk etc.
+  DSM status - if there are any updates.
+  DSM version - what version is currently running on the Synology
+  Model Name - what model Synology, for example RS3614xs+  
+  power status - status of the power supply
+  RAID name - Name of your volume
+  RAID status - status of RAID, broken, rebuilding etc,
+  Serial Number - Serial number of your Equallogic
+  System Fan Status - Fan Failures etc.
+  System partition Status - status of your System partition
+  Temperature per disk.
+  Temperature of Device.
+  
+since the Synology does not have an index for the disks,
+I was unable to create a LLD (Low Level Discovery) for the disks.
+as "work-arround" I have created 12 Disks as Items
+
+make sure the Host Group: "Templates" exists or the import will fail.
+and create the following value mappings (Administration - General - Value mapping)
+
+syno-Disk-Status	
+  1 ⇒ Normal
+  2 ⇒ Initialized
+  3 ⇒ NotInitialized
+  4 ⇒ SystemPartitionFailed
+  5 ⇒ Crashed
+
+syno-Normal-Failed-Status	
+  1 ⇒ Normal
+  2 ⇒ Failed
+
+syno-Raid-Status	
+  1 ⇒ Normal
+  2 ⇒ Repairing
+  3 ⇒ Migrating
+  4 ⇒ Expanding
+  5 ⇒ Deleting
+  6 ⇒ Creating
+  7 ⇒ RaidSyncing
+  8 ⇒ RaidParityChecking
+  9 ⇒ RaidAssembling
+  10 ⇒ Canceling
+  11 ⇒ Degrade
+  12 ⇒ Crashed
+
+syno-upgrade-Available
+  1 ⇒ Available
+  2 ⇒ Unavailable
+  3 ⇒ Connecting
+  4 ⇒ Disconnected
+  5 ⇒ Others
+
+-->
 <zabbix_export>
     <version>2.0</version>
-    <date>2015-04-07T09:48:17Z</date>
+    <date>2015-04-07T10:18:30Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -3170,6 +3236,16 @@ Failed(2): Volume has crashed.</description>
     </templates>
     <triggers>
         <trigger>
+            <expression>{Synology NAS:synoCPUFanStatus.last()}=2</expression>
+            <name>CPU Fan Failed</name>
+            <url/>
+            <status>0</status>
+            <priority>5</priority>
+            <description/>
+            <type>0</type>
+            <dependencies/>
+        </trigger>
+        <trigger>
             <expression>{Synology NAS:synoDisk1Status.last()}&lt;&gt;0</expression>
             <name>Disk 1 Status</name>
             <url/>
@@ -3452,6 +3528,16 @@ Failed(2): Volume has crashed.</description>
         <trigger>
             <expression>{Synology NAS:synoRaidStatus1.prev()}&lt;&gt;1</expression>
             <name>RAID Status</name>
+            <url/>
+            <status>0</status>
+            <priority>4</priority>
+            <description/>
+            <type>0</type>
+            <dependencies/>
+        </trigger>
+        <trigger>
+            <expression>{Synology NAS:synoSystemFanStatus.last()}=2</expression>
+            <name>System Fan Failed</name>
             <url/>
             <status>0</status>
             <priority>4</priority>
