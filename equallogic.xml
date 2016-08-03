@@ -5,7 +5,7 @@ Simple XML template for zabbix to monitor Synology devices.
 Create the following Value mappings
 Administration > General > Value mappings
 
-l-Controller-Battery-Status	
+eql-Controller-Battery-Status	
   1 ⇒ ok
   2 ⇒ failed
   3 ⇒ good-battery-is-charging
